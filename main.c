@@ -33,6 +33,7 @@ int main() {
     printf("\n%d", b->value);
     //testprint(b);
     printf("\n%d\n", card_count(a));*/
+    //printf("%d", (RANK_DRAWFOUR | COLOR_MASK) > (RANK_EIGHT | COLOR_GREEN));
     game_menu();
     return EXIT_SUCCESS;
 }

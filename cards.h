@@ -10,8 +10,8 @@
 #define COLOR_RED       0b00100000
 #define COLOR_GREEN     0b01000000
 #define COLOR_BLUE      0b01100000
-#define COLOR_YELLOW    0b10000000
-
+#define COLOR_YELLOW    0b10000000 //64 69
+//unsigned char a = 0b10000011;
 #define RANK_MASK       0b00001111
 #define RANK_ZERO       0b00000000
 #define RANK_ONE        0b00000001
@@ -31,7 +31,7 @@
 
 struct _card;
 typedef struct _card {
-    char value;
+    unsigned char value;
     struct _card *prev;
     struct _card *next;
 } card;
@@ -90,6 +90,8 @@ card *card_swap(card *first, int n) {
     helper_card->value = swap_card->value;
     swap_card->value = first->value;
     first->value = helper_card->value;
+    //free(helper_card);
+    //free(swap_card);
 
     return first;
 }
@@ -124,9 +126,40 @@ card *card_push(card *first, char value) {
     return helper_card;
 }
 
+card *card_nth(card *first, int n) {
+    if (n == 1)
+        return first;
+    return card_nth(first->next, n - 1);
+}
+#include <unistd.h>
+int card_sort(card *hand) {
+    card *n_card = hand;
+    
+    while (n_card->next != NULL) {
+        if (n_card->value & COLOR_BLACKMASK)
+            n_card->value = n_card->value | COLOR_YELLOW;
+        int min = 1;
+        for(int i = 2; i <= card_count(n_card); i++) {
+            if (!(card_nth(n_card, i)->value & COLOR_BLACKMASK)) {
+                if (card_nth(n_card, min)->value > card_nth(n_card, i)->value)
+                    min = i;
+            }
+            //printf("%u %u\n", card_nth(n_card, min)->value, card_nth(n_card, i)->value);
+            //sleep(1);
+        }
+        if (n_card->value & COLOR_BLACKMASK)
+            n_card->value = n_card->value & (COLOR_BLACKMASK | RANK_MASK);
+        n_card = card_swap(n_card, min-1);
+
+        n_card = n_card->next;
+    }
+    return EXIT_SUCCESS;
+}
+
 int card_draw(card **player, card **deck) {
     *player = card_push(*player, (**deck).value);
     *deck = card_pop(*deck);
+    //card_sort(*player);
     return EXIT_SUCCESS;
 }
 
@@ -156,12 +189,6 @@ int card_compatible(char p_value, char s_value) {
     if (s_value & COLOR_BLACKMASK)
         return (p_value & COLOR_MASK) ==(s_value & COLOR_MASK);
     return (p_value & COLOR_MASK) == (s_value & COLOR_MASK) || (p_value & RANK_MASK) == (s_value & RANK_MASK);
-}
-
-card *card_nth(card *first, int n) {
-    if (n == 1)
-        return first;
-    return card_nth(first->next, n - 1);
 }
 
 void testprint(card *deck) {

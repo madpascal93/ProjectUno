@@ -26,11 +26,16 @@ int game_start() {
     }
     //deck = card_allocate();
     stacks[5] = card_createStack(&stacks[0]);
+    while(stacks[5]->value & COLOR_BLACKMASK)
+        card_draw(&stacks[5], &stacks[0]);
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < players; j++) {
             card_draw(&stacks[j + 1], &stacks[0]);
         }
     }
+
+    for (int i = 0; i < players; i++)
+        card_sort(stacks[i+1]);
     return players;
 }
 
@@ -75,17 +80,20 @@ int game_computermove(card **player, card **stack) {
         }
         hand = hand->next;
     } while (hand != NULL);
-    if (hand == NULL)
+    if (hand == NULL) {
         card_draw(player, &stacks[0]);
+        card_sort(*player);
+    }
     return EXIT_SUCCESS;
 }
 
 int game_playermove(card **player, card**stack) {
-    printf("was willst du tun");
+    printf("Wählen Sie 0: Karte ziehen, 1-%d: Karte legen!\n\tEingabe: ", card_count(stacks[1]));
     int input;
     scanf("\n%d", &input);
     if (!input) {
         card_draw(player, &stacks[0]);
+        card_sort(*player);
     } else {
         if (card_compatible((card_nth(*player, input))->value, (*stack)->value)) {
             card *moveCard = card_nth(*player, input);
@@ -110,7 +118,7 @@ int game_computermoveDrawTwo(card **player, card **stack) {
     card *hand = card_allocate();
     hand = *player;
     do {
-        if (card_compatible(hand->value, RANK_DRAWTWO)) {
+        if ((hand->value & RANK_MASK) == RANK_DRAWTWO) {
             if (hand == *player) {
                 *stack = card_push(*stack, (*player)->value);
                 *player = (card_pop(*player));
@@ -126,8 +134,8 @@ int game_computermoveDrawTwo(card **player, card **stack) {
     return 0;
 }
 
-int game_playermoveDrawTwo(card **player, card**stack) {
-    printf("was willst du tun");
+int game_playermoveDrawTwo(card **player, card**stack, int drawcards) {
+    printf("Wählen Sie 0: %d Karten aufnehmen, 1-%d: (+2)-Karte legen!", drawcards, card_count(*player));
     int input;
     scanf("\n%d", &input);
     if (!input) {
@@ -143,7 +151,7 @@ int game_playermoveDrawTwo(card **player, card**stack) {
             }
         } else {
             printf("Move not possible, lay a +2 or enter '0' to draw cards!\n");
-            return game_playermoveDrawTwo(player, stack);
+            return game_playermoveDrawTwo(player, stack, drawcards);
         }
     }
     return 1;
@@ -153,14 +161,15 @@ int game_won(card *stack) {
     return stack == NULL;
 }
 
-int game_drawTwo(int order, int direction) {
+int game_drawTwo(int order, int direction, int players) {
     int drawCards = 2;
     while (1) {
-        plot(stacks);
         order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0);
+        if (!game_won(stacks[order]))
+            plot_new(stacks, players, order, direction);
         int count_pre = card_count(stacks[5]);
         if (order == 1) {
-            if (game_playermoveDrawTwo(&stacks[order], &stacks[5])) {
+            if (game_playermoveDrawTwo(&stacks[order], &stacks[5], drawCards)) {
                 drawCards += 2;
             } else {
                 for (int i = 0; i < drawCards; i++) {
@@ -171,6 +180,7 @@ int game_drawTwo(int order, int direction) {
                         card_shuffle(stacks[0]->next);
                     }
                 }
+                card_sort(stacks[order]);
                 return order;
             }
         } else {
@@ -186,6 +196,7 @@ int game_drawTwo(int order, int direction) {
                             card_shuffle(stacks[0]->next);
                         }
                     }
+                    card_sort(stacks[order]);
                     return order;
                 }
             }
@@ -200,8 +211,9 @@ int game_menu() {
     int order = 0;
     int direction = 1;
     while (stacks[1] != NULL) {
-        plot(stacks);
         order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0);
+        if (!game_won(stacks[order]))
+            plot_new(stacks, players, order, direction);
         int count_pre = card_count(stacks[5]);
         if (order == 1) {
             game_playermove(&stacks[order], &stacks[5]);
@@ -223,7 +235,6 @@ int game_menu() {
                 order == 1 ? game_PlayerChooseColor(&stacks[5]) : game_ComputerChooseColor(stacks[order], &stacks[5]);
                 if ((stacks[5]->value & (RANK_MASK | COLOR_BLACKMASK)) == RANK_DRAWFOUR) {
                     for (int i = 0; i < 4; i++) {
-                        printf("++\n");
                         while (stacks[order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0)] == NULL)
                             order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0);
                         card_draw(&stacks[order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0)], &stacks[0]);
@@ -233,19 +244,22 @@ int game_menu() {
                             card_shuffle(stacks[0]->next);
                         }
                     }
+                    card_sort(stacks[order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0)]);
                     order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0);
                 }
             } else {
                 if ((stacks[5]->value & RANK_MASK) > 9) {
                     switch (stacks[5]->value & RANK_MASK) {
                         case 10:
+                            while (stacks[order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0)] == NULL)
+                                order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0);
                             order = order % MAX_PLAYERS + direction + (order % MAX_PLAYERS <= 1 && direction < 0 ? 4 : 0);
                             break;
                         case 11:
                             direction *= -1;
                             break;
                         case 12:
-                            order = game_drawTwo(order, direction);
+                            order = game_drawTwo(order, direction, players);
                             break;
                         default:
                             break;
