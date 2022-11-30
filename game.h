@@ -12,9 +12,11 @@ card *stacks[6];
 
 int game_start() {
     system(CLEAR);
-    printf("Spieler Anzahl: ");
     int players;
-    scanf("%d", &players);
+    do {
+        printf("Spieler Anzahl (2-4) : ");
+        scanf("%d", &players);
+    } while (players > 4 || players < 2);
     card *deck = card_initialize();
     card_shuffle(deck);
     //deck = card_initialize();
@@ -88,9 +90,12 @@ int game_computermove(card **player, card **stack) {
 }
 
 int game_playermove(card **player, card**stack) {
-    printf("Wählen Sie 0: Karte ziehen, 1-%d: Karte legen!\n\tEingabe: ", card_count(stacks[1]));
     int input;
-    scanf("\n%d", &input);
+    do {
+        printf("Wählen Sie 0: Karte ziehen, 1-%d: Karte legen!\n\tEingabe: ", card_count(stacks[1]));
+        scanf("\n%d", &input);
+
+    } while (input < 0 || input > card_count(*player));
     if (!input) {
         card_draw(player, &stacks[0]);
         card_sort(*player);
@@ -135,9 +140,11 @@ int game_computermoveDrawTwo(card **player, card **stack) {
 }
 
 int game_playermoveDrawTwo(card **player, card**stack, int drawcards) {
-    printf("Wählen Sie 0: %d Karten aufnehmen, 1-%d: (+2)-Karte legen!", drawcards, card_count(*player));
     int input;
-    scanf("\n%d", &input);
+    do {
+        printf("Wählen Sie 0: %d Karten aufnehmen, 1-%d: (+2)-Karte legen!", drawcards, card_count(*player));
+        scanf("\n%d", &input);
+    } while (input < 0 || input > card_count(*player));
     if (!input) {
         return 0;
     } else {
@@ -216,7 +223,8 @@ int game_menu() {
             plot_new(stacks, players, order, direction);
         int count_pre = card_count(stacks[5]);
         if (order == 1) {
-            game_playermove(&stacks[order], &stacks[5]);
+            if (game_playermove(&stacks[order], &stacks[5]))
+                return EXIT_SUCCESS;
         } else {
             if (!game_won(stacks[order]))
                 game_computermove(&stacks[order], &stacks[5]);

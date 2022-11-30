@@ -131,7 +131,7 @@ card *card_nth(card *first, int n) {
         return first;
     return card_nth(first->next, n - 1);
 }
-#include <unistd.h>
+
 int card_sort(card *hand) {
     card *n_card = hand;
     

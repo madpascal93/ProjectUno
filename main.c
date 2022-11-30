@@ -17,23 +17,11 @@
 
 
 int main() {
-    //printf(GREEN("P")RED("E")YELLOW("N")BLUE("I")GREEN("S\n"));
-    //printf("%d", (3 << 5 | 3 % 13 + (3 > 12)) == (COLOR_GREEN | RANK_THREE));
-    //card *a = card_initialize();
-    //card *b = card_initialize();
-    //card_swap(a->next->next->next->next, 4);
-    //card_shuffle(a);
-    //a = card_pop(a);
-    //card_draw(&a, &b);
-    //a = card_push(a, 5);
-    //b = card_createStack(&a);
-    //card_draw(&b, &a);
-    /*testprint(a);
-    b = card_nth(a, 5);
-    printf("\n%d", b->value);
-    //testprint(b);
-    printf("\n%d\n", card_count(a));*/
-    //printf("%d", (RANK_DRAWFOUR | COLOR_MASK) > (RANK_EIGHT | COLOR_GREEN));
-    game_menu();
+    int exit = 1;
+
+    while(exit) {
+        game_menu();
+    }
+
     return EXIT_SUCCESS;
 }
