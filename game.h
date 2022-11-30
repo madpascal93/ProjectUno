@@ -141,7 +141,7 @@ int game_playermoveDrawTwo(card **player, card**stack, int drawcards) {
     if (!input) {
         return 0;
     } else {
-        if (card_compatible((card_nth(*player, input))->value, RANK_DRAWTWO)) {
+        if (card_compatible(((card_nth(*player, input))->value & (COLOR_MASK | RANK_MASK)), RANK_DRAWTWO)) {
             card *moveCard = card_nth(*player, input);
             if (input == 1) {
                 *stack = card_push(*stack, (*player)->value);
