@@ -18,14 +18,18 @@
 
 #ifdef WIN32
 #define CLEAR "cls"
+#define AUSSETZEN "  X  "
+#define RICHTUNGSWECHSEL " <-> "
 #else
 #define CLEAR "clear"
+#define AUSSETZEN "  \U000020E0  "
+#define RICHTUNGSWECHSEL "  \U000021CC  "
 #endif
 
 int test(int a) { return 0;}
 
 int plot_printvalue(char value) {
-    char values[13][10] = {"  0  ", "  1  ", "  2  ", "  3  ", "  4  ", "  5  ", "  6  ", "  7  ", "  8  ", "  9  ", "  \U000020E0  ", "  \U000021CC  ", "  +2 "};
+    char values[13][10] = {"  0  ", "  1  ", "  2  ", "  3  ", "  4  ", "  5  ", "  6  ", "  7  ", "  8  ", "  9  ", AUSSETZEN, RICHTUNGSWECHSEL, "  +2 "};
     if (value & COLOR_BLACKMASK) {
         switch ((value & COLOR_MASK) >> 5) {
             case 1:
