@@ -172,7 +172,7 @@ card *card_createStack(card **deck) {
 
 int card_lay(card **player, card **stack) {
     *stack = card_push(*stack, (*player)->value);
-    printf("%d\n", (*player)->value);
+    //printf("%d\n", (*player)->value);
     if ((*player)->prev != NULL) {
         (*player)->prev->next = (*player)->next;
     } 

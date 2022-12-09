@@ -42,7 +42,7 @@ int game_start() {
 }
 
 int game_PlayerChooseColor(card **stack) {
-    printf("Wähle eine Farbe (" RED("1") ", " GREEN("2") ", " BLUE("3") ", " YELLOW("4") " : ");
+    printf("Wähle eine Farbe (" RED("1") ", " GREEN("2") ", " BLUE("3") ", " YELLOW("4") ") : ");
     int input;
     scanf("%d", &input);
     (*stack)->value = (input << 5) | ((*stack)->value & RANK_MASK) | COLOR_BLACKMASK;  
@@ -102,7 +102,6 @@ int game_playermove(card **player, card**stack) {
     } else {
         if (card_compatible((card_nth(*player, input))->value, (*stack)->value)) {
             card *moveCard = card_nth(*player, input);
-            //printf("%d\n", moveCard->value);
             if (input == 1) {
                 *stack = card_push(*stack, (*player)->value);
                 *player = (card_pop(*player));
